@@ -1,0 +1,6 @@
+{
+  "name": "DBClient",
+  "description": "A database management application for MySQL and PostgreSQL with SQL editor and table viewer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
