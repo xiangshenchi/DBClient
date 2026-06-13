@@ -45,7 +45,12 @@ app.post('/api/webdav/restore', async (req, res) => {
     }
     const data = await client.getFileContents(path, { format: "text" });
     let textData = typeof data === 'string' ? data : (data as Buffer).toString('utf-8');
-    res.json({ success: true, data: JSON.parse(textData) });
+    try {
+      res.json({ success: true, data: JSON.parse(textData) });
+    } catch (parseError) {
+      const preview = textData.trim().substring(0, 40).replace(/\r?\n|\r/g, ' ');
+      return res.status(400).json({ error: `WebDAV server returned an invalid file (not JSON). Server response starts with: "${preview}...". Please check your URL/Path and ensure you have backed up first.` });
+    }
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
