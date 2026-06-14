@@ -143,12 +143,9 @@ export default function Workspace({
       const res = await executeQuery(connection, sql);
       setResult(res);
       setQueryHistory(prev => {
-        const lastQuery = prev[prev.length - 1];
-        if (lastQuery !== sql) {
-          const newHistory = [...prev, sql];
-          return newHistory.length > 200 ? newHistory.slice(-200) : newHistory;
-        }
-        return prev;
+        const filteredHistory = prev.filter(q => q !== sql);
+        const newHistory = [...filteredHistory, sql];
+        return newHistory.length > 200 ? newHistory.slice(-200) : newHistory;
       });
     } catch(e: any) {
       setResult({ success: false, error: e.message });
