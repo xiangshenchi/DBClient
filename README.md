@@ -1,20 +1,69 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 网页版数据库管理工具 (Web DB Manager)
 
-# Run and deploy your AI Studio app
+这是一款轻量级、现代化的网页版数据库管理客户端。支持直观地管理您的数据库连接，并提供本地安全锁与云端备份功能。
 
-This contains everything you need to run your app locally.
+## ✨ 主要功能
 
-View your app in AI Studio: https://ai.studio/apps/b345accf-6bdc-48cc-9a6c-b81a48884177
+- 🔒 **隐私保护**：初次使用需设置 4 位 PIN 码，保护本地数据库连接配置。
+- 💾 **本地存储 & 云端备份**：连接信息默认安全地保存在浏览器本地（LocalStorage），确保敏感数据不随便上云。同时支持通过 **WebDAV** 进行云端配置备份与恢复，防止数据意外丢失。
+- 🎨 **快速主题切换**：支持浅色 (Light) 和深色 (Dark) 模式的无缝切换。
+- 📌 **快捷管理**：
+  - 支持拖拽排序，自由组织应用内不同连接的顺序。
+  - 支持“星标”设置，一键将高频常用的数据库置顶系统。
+  - 一键快速测试数据库连通性（Ping）。
+- 🗄️ **多数据库支持**：支持配置和管理多种数据库连接记录。
 
-## Run Locally
+## 🚀 部署与运行
 
-**Prerequisites:**  Node.js
+本项目是一个全栈应用，前端采用 React (Vite) 构建，后端采用 Express 提供 WebDAV 请求代理和安全连通性测试服务。
 
+### 环境要求
+- Node.js 18+
+- npm 或 pnpm
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 本地开发
+
+1. 安装项目依赖：
+   ```bash
+   npm install
+   ```
+2. 启动开发服务器（前后端一体）：
+   ```bash
+   npm run dev
+   ```
+   默认将在 `http://localhost:3000` 启动服务。
+
+### 生产环境构建部署
+
+> **⚠️ 重要提醒:** 
+> 由于本项目包含处理 WebDAV 通信和数据库底层探测的 Node.js 后端服务，**不能**仅作为静态网页（如 Vercel 或 GitHub Pages 的纯静态托管模式）部署。必须使用支持 Node.js 运行时的环境（如 VPS 云服务器、Render、Railway 或 Railway 这类容器平台）进行部署。
+
+1. 执行生产环境构建：
+   ```bash
+   npm run build
+   ```
+   该命令会将前端代码打包为静态页面，并将后端 API 一并打包。
+
+2. 启动正式服务：
+   ```bash
+   npm start
+   ```
+
+## ❓ 常见问题排查
+
+- **为什么我在 Vercel 静态部署后，点击 Restore (恢复备份) 报错？**
+  **解答**：因为 Vercel 静态托管无法运行项目内自带的 Express 守护进程（`/server.ts`）。这就导致连接 WebDAV、Ping 数据库等依赖后端的请求失效，并可能返回诸如 "Unexpected token 'T', The page..."（也就是 404 引导页面代码）等报错信息。请把它部署到能够完整运行 Node 服务端的地方。
+
+- **浏览器 LocalStorage 会过期吗？数据会不见吗？**
+  **解答**：LocalStorage 机制本身没有时间限制，它是长期有效的。除非你主动去清理浏览器缓存数据、重装浏览器或更换电脑。不过为了防止意外的设备重置或浏览器失效，建议配置并定期使用 WebDAV 进行云端备份。
+
+- **如果我不小心忘记当初设置的锁屏 PIN 密码怎么办？**
+  **解答**：在输入 PIN 码界面的侧方点击 `Forgot PIN?` 可以重置应用。**注意：** 出于安全策略，重置操作会强制清空并在本地永久删除你之前建立的所有连接配置。如果有做过 WebDAV 备份，可以在重置后进入应用重新连接 WebDAV 恢复数据。
+
+## 🛠️ 技术栈
+
+- **前端**: React, Vite, Tailwind CSS, Lucide React (图标集), dnd-kit (手势与拖拽排序)
+- **后端**: Express.js, Node TypeScript 
+
+## 📄 开源协议
+MIT License

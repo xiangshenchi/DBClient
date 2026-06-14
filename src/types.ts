@@ -11,6 +11,7 @@ export interface DBConnection {
   password?: string;
   ssl: boolean;
   lastConnected?: number;
+  isFavorite?: boolean;
 }
 
 export interface ColumnDetail {

@@ -14,7 +14,8 @@ export default function ConnectionList({
   onBackupConfig,
   onReorder,
   theme,
-  onToggleTheme
+  onToggleTheme,
+  onToggleFavorite
 }: { 
   connections: DBConnection[], 
   onSelect: (c: DBConnection) => void, 
@@ -23,7 +24,8 @@ export default function ConnectionList({
   onBackupConfig: () => void,
   onReorder: (connections: DBConnection[]) => void,
   theme: 'light' | 'dark',
-  onToggleTheme: () => void
+  onToggleTheme: () => void,
+  onToggleFavorite: (id: string) => void
 }) {
   const [pingStates, setPingStates] = useState<Record<string, { resolving: boolean, success?: boolean, ms?: number }>>({});
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -108,6 +110,7 @@ export default function ConnectionList({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onPing={handlePing}
+                  onToggleFavorite={(e, id) => { e.stopPropagation(); onToggleFavorite(id); }}
                   setDeleteConfirmId={setDeleteConfirmId}
                 />
               ))}

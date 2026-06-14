@@ -51,6 +51,18 @@ export default function App() {
     localStorage.setItem('dbclient_connections', JSON.stringify(conns));
   };
 
+  const handleToggleFavorite = (id: string) => {
+    const updated = connections.map(c => c.id === id ? { ...c, isFavorite: !c.isFavorite } : c);
+    
+    const sorted = [...updated].sort((a, b) => {
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      return 0;
+    });
+    
+    saveConnections(sorted);
+  };
+
   const handleEditSave = (conn: DBConnection) => {
     const idx = connections.findIndex(c => c.id === conn.id);
     let newConns;
@@ -101,6 +113,7 @@ export default function App() {
           onReorder={(conns) => saveConnections(conns)}
           theme={theme}
           onToggleTheme={toggleTheme}
+          onToggleFavorite={handleToggleFavorite}
         />
       )}
       {screen === 'webdav' && (

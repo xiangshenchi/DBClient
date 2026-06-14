@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Database, Server, Clock, Trash2, Edit2, Play, GripVertical } from 'lucide-react';
+import { Database, Server, Clock, Trash2, Edit2, Play, GripVertical, Star } from 'lucide-react';
 import { DBConnection } from './types';
 
 export function SortableConnectionItem({
@@ -12,6 +12,7 @@ export function SortableConnectionItem({
   onEdit,
   onDelete,
   onPing,
+  onToggleFavorite,
   setDeleteConfirmId
 }: {
   conn: DBConnection;
@@ -21,6 +22,7 @@ export function SortableConnectionItem({
   onEdit: (conn: DBConnection) => void;
   onDelete: (id: string) => void;
   onPing: (e: React.MouseEvent, conn: DBConnection) => void;
+  onToggleFavorite: (e: React.MouseEvent, id: string) => void;
   setDeleteConfirmId: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const {
@@ -86,6 +88,13 @@ export function SortableConnectionItem({
       
       <div className="bg-slate-50 dark:bg-slate-950/50 px-4 py-3 flex justify-between border-t border-slate-200 dark:border-slate-800/50">
         <div className="flex gap-2">
+          <button 
+            onClick={(e) => onToggleFavorite(e, conn.id)}
+            className={`p-2 transition-colors rounded-lg ${conn.isFavorite ? 'text-amber-500 hover:bg-slate-200 dark:hover:bg-slate-800' : 'text-slate-500 dark:text-slate-400 hover:text-amber-500 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+            title={conn.isFavorite ? "Unpin database" : "Pin database to top"}
+          >
+            <Star className="w-4 h-4" fill={conn.isFavorite ? "currentColor" : "none"} />
+          </button>
           <button 
             onClick={(e) => onPing(e, conn)}
             className="p-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800"
