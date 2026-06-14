@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Play, LayoutPanelLeft, Table2, Key, AlertTriangle, Download, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Play, LayoutPanelLeft, Table2, Key, AlertTriangle, Download, X, Loader2, History } from 'lucide-react';
 import { DBConnection, TableStructure, QueryResult } from './types';
 import { getDatabaseStructure, executeQuery } from './api';
 
@@ -18,6 +18,25 @@ export default function Workspace({
   const [result, setResult] = useState<QueryResult | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [isResizing, setIsResizing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const historyKey = `dbclient_history_${connection.id}`;
+  const [queryHistory, setQueryHistory] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(historyKey);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [sidebarTab, setSidebarTab] = useState<'tables' | 'history'>('tables');
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(historyKey, JSON.stringify(queryHistory));
+    } catch (e) {
+      // ignore
+    }
+  }, [queryHistory, historyKey]);
 
   useEffect(() => {
     const handleMove = (e: MouseEvent | TouchEvent) => {
@@ -68,11 +87,31 @@ export default function Workspace({
     try {
       const res = await executeQuery(connection, sql);
       setResult(res);
+      setQueryHistory(prev => {
+        const lastQuery = prev[prev.length - 1];
+        if (lastQuery !== sql) {
+          const newHistory = [...prev, sql];
+          return newHistory.length > 200 ? newHistory.slice(-200) : newHistory;
+        }
+        return prev;
+      });
     } catch(e: any) {
       setResult({ success: false, error: e.message });
     }
     setIsRunning(false);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runQuery();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [sql, isRunning, connection]);
 
   const handleTableClick = (tableName: string) => {
     setSql(`SELECT * FROM ${tableName} LIMIT 100;`);
@@ -91,7 +130,7 @@ export default function Workspace({
       }).join(','))
     ].join('\n');
     
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -133,11 +172,53 @@ export default function Workspace({
               onTouchStart={(e) => { setIsResizing(true); }}
               className={`absolute top-0 -right-3 w-6 h-full cursor-col-resize z-50 transition-colors ${isResizing ? 'bg-blue-500' : 'hover:bg-blue-500/50'}`}
             />
-            <div className="p-3 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Tables
+            <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-2">
+              <div className="flex items-center gap-4 text-xs font-semibold uppercase tracking-wider">
+                <button 
+                  onClick={() => setSidebarTab('tables')}
+                  className={`transition-colors ${sidebarTab === 'tables' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  Tables
+                </button>
+                <button 
+                  onClick={() => setSidebarTab('history')}
+                  className={`flex items-center gap-1 transition-colors ${sidebarTab === 'history' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  <History className="w-3 h-3" /> History
+                </button>
+              </div>
+              {sidebarTab === 'tables' && (
+                <input 
+                  type="text" 
+                  placeholder="Search tables..." 
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-full bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 outline-none rounded-md px-2 py-1 text-xs text-slate-700 dark:text-slate-300 placeholder-slate-400 transition-all"
+                />
+              )}
             </div>
             <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 relative">
-              {isStructureLoading ? (
+              {sidebarTab === 'history' ? (
+                <div className="flex flex-col gap-2">
+                  {queryHistory.length === 0 ? (
+                    <div className="p-4 text-center text-slate-500 text-xs text-balance">
+                      <span className="block mb-1">No history yet</span>
+                      <span className="text-[10px]">Queries run in this session will appear here</span>
+                    </div>
+                  ) : (
+                    queryHistory.slice().reverse().map((q, i) => (
+                      <div 
+                        key={i} 
+                        onClick={() => setSql(q)}
+                        className="p-2 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md cursor-pointer text-[10px] font-mono text-slate-700 dark:text-slate-300 break-all border border-slate-200 dark:border-slate-800/50 transition-colors line-clamp-4"
+                        title={q}
+                      >
+                        {q}
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : isStructureLoading ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span className="text-xs">Loading...</span>
@@ -147,9 +228,15 @@ export default function Workspace({
                   <span className="block mb-1">No tables found</span>
                   <span className="text-[10px]">or failed to connect</span>
                 </div>
+              ) : Object.entries(structure).filter(([tableName]) => tableName.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+                <div className="p-4 text-center text-slate-500 text-xs text-balance">
+                  <span className="block mb-1">No matching tables</span>
+                </div>
               ) : (
-                Object.entries(structure).map(([tableName, cols]) => (
-                  <details key={tableName} className="group min-w-0">
+                Object.entries(structure)
+                  .filter(([tableName]) => tableName.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map(([tableName, cols]) => (
+                  <details key={tableName} className="group min-w-0" open={searchTerm.length > 0}>
                   <summary className="cursor-pointer p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center text-sm select-none list-none [&::-webkit-details-marker]:hidden min-w-0" title={tableName} onClick={(e) => {
                     handleTableClick(tableName);
                   }}>
@@ -186,9 +273,15 @@ export default function Workspace({
            <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
             <AlertTriangle className="w-3 h-3" /> Read-only (LIMIT auto-applied)
           </span>
-          <button 
-            disabled={isRunning || !sql.trim()}
-            onClick={runQuery}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-slate-400 hidden sm:inline-flex items-center gap-1.5 opacity-70">
+              <kbd className="font-sans font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-[9px]">Ctrl</kbd>
+              <span>+</span>
+              <kbd className="font-sans font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-[9px]">Enter</kbd>
+            </span>
+            <button 
+              disabled={isRunning || !sql.trim()}
+              onClick={runQuery}
             className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-all"
           >
             {isRunning ? (
@@ -198,6 +291,7 @@ export default function Workspace({
             )}
             Run
           </button>
+          </div>
         </div>
       </div>
 
