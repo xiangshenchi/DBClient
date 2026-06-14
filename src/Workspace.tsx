@@ -3,6 +3,61 @@ import { ArrowLeft, Play, LayoutPanelLeft, Table2, Key, AlertTriangle, Download,
 import { DBConnection, TableStructure, QueryResult } from './types';
 import { getDatabaseStructure, executeQuery } from './api';
 
+const ResizableHeader = ({ children }: { children: React.ReactNode }) => {
+  const [width, setWidth] = useState(80);
+  const [isResizing, setIsResizing] = useState(false);
+  const startXRef = useRef(0);
+  const startWidthRef = useRef(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsResizing(true);
+    startXRef.current = e.clientX;
+    startWidthRef.current = width;
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      const diff = e.clientX - startXRef.current;
+      setWidth(Math.max(50, startWidthRef.current + diff));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    }
+
+    return () => {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
+  return (
+    <th 
+      style={{ width, minWidth: width, maxWidth: width }} 
+      className="p-3 font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 last:border-0 relative select-none truncate group"
+    >
+      {children}
+      <div 
+        onMouseDown={handleMouseDown}
+        className={`absolute top-0 right-0 bottom-0 w-1.5 cursor-col-resize z-10 transition-colors ${isResizing ? 'bg-blue-500' : 'bg-transparent group-hover:bg-slate-300 dark:group-hover:bg-slate-700 hover:!bg-blue-400'}`}
+      />
+    </th>
+  );
+};
+
 export default function Workspace({
   connection,
   onBack
@@ -310,11 +365,11 @@ export default function Workspace({
               </div>
               <div className="flex-1 overflow-auto">
                 {result.rows && result.rows.length > 0 ? (
-                  <table className="w-full text-left border-collapse text-sm whitespace-nowrap">
+                  <table className="w-max min-w-full text-left border-collapse text-sm whitespace-nowrap" style={{ tableLayout: 'fixed' }}>
                     <thead className="bg-slate-100 dark:bg-slate-900 sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
                       <tr>
                         {Object.keys(result.rows[0]).map(key => (
-                          <th key={key} className="p-3 font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 last:border-0">{key}</th>
+                          <ResizableHeader key={key}>{key}</ResizableHeader>
                         ))}
                       </tr>
                     </thead>
@@ -322,7 +377,7 @@ export default function Workspace({
                       {result.rows.map((row, i) => (
                         <tr key={i} className="hover:bg-white dark:hover:bg-slate-900/50">
                           {Object.values(row).map((val: any, j) => (
-                            <td key={j} className="p-3 border-r border-slate-200 dark:border-slate-800/50 last:border-0 truncate max-w-[200px]">
+                            <td key={j} className="p-3 border-r border-slate-200 dark:border-slate-800/50 last:border-0 truncate">
                               {val === null ? <span className="text-slate-400 dark:text-slate-600 italic">NULL</span> : String(val)}
                             </td>
                           ))}
