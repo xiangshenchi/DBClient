@@ -64,7 +64,10 @@ export default function ConnectionList({
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10">
-        <h1 className="text-xl font-medium tracking-tight">Connections</h1>
+        <div className="flex items-center gap-3">
+          <img src="https://b2.chix.pp.ua/1781414486188.webp" alt="App Icon" className="w-8 h-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700" />
+          <h1 className="text-xl font-medium tracking-tight">Connections</h1>
+        </div>
         <div className="flex gap-3">
           <button 
             onClick={onToggleTheme}

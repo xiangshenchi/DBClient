@@ -47,8 +47,8 @@ export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6">
       <div className="mb-8 flex flex-col items-center">
-        <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-          <Database className="w-8 h-8 text-white" />
+        <div className="w-20 h-20 mb-4 rounded-3xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center">
+          <img src="https://b2.chix.pp.ua/1781414486188.webp" alt="DBClient Icon" className="w-full h-full object-cover" />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">DBClient</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
