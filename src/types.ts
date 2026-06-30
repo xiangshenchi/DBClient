@@ -1,4 +1,4 @@
-export type DBType = 'mysql' | 'postgres';
+export type DBType = 'mysql' | 'postgres' | 'redis';
 
 export interface DBConnection {
   id: string;

@@ -4,6 +4,7 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import mysql from 'mysql2/promise';
 import { Client } from 'pg';
+import Redis from 'ioredis';
 
 const app = express();
 const PORT = 3000;
@@ -82,6 +83,19 @@ const connectPg = async (config: any) => {
   return client;
 };
 
+const connectRedis = async (config: any) => {
+  return new Redis({
+    host: config.host,
+    port: config.port || 6379,
+    password: config.password,
+    db: config.database ? parseInt(config.database, 10) || 0 : 0,
+    tls: config.ssl ? { rejectUnauthorized: false } : undefined,
+    commandTimeout: 10000,
+    maxRetriesPerRequest: 1,
+    retryStrategy: () => null // Do not retry on initial connect failure
+  });
+};
+
 // 1. /api/ping: Test connection
 app.post('/api/ping', async (req, res) => {
   const t0 = Date.now();
@@ -95,6 +109,10 @@ app.post('/api/ping', async (req, res) => {
       const conn = await connectPg(config);
       await conn.query('SELECT 1');
       await conn.end();
+    } else if (config.type === 'redis') {
+      const conn = await connectRedis(config);
+      await conn.ping();
+      await conn.quit();
     } else {
       throw new Error('Unsupported database type');
     }
@@ -133,14 +151,18 @@ app.post('/api/query', async (req, res) => {
   let sql = req.body.sql as string;
   
   if (!sql || !sql.trim()) {
-    return res.status(400).json({ error: 'SQL is empty' });
+    return res.status(400).json({ error: 'SQL/Command is empty' });
   }
   
-  if (!isSafeQuery(sql)) {
+  const isRedis = config.type === 'redis';
+
+  if (!isRedis && !isSafeQuery(sql)) {
     return res.status(400).json({ error: 'Execution blocked: Only SELECT / SHOW / DESCRIBE / EXPLAIN are allowed' });
   }
 
-  sql = applyLimit(sql, 1000);
+  if (!isRedis) {
+    sql = applyLimit(sql, 1000);
+  }
   
   const t0 = Date.now();
   try {
@@ -155,6 +177,30 @@ app.post('/api/query', async (req, res) => {
       const result = await conn.query(sql);
       rows = result.rows;
       await conn.end();
+    } else if (isRedis) {
+      const conn = await connectRedis(config);
+      // split command string roughly, e.g. "GET mykey" -> ["GET", "mykey"]
+      const args = sql.trim().match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) || [];
+      const parsedArgs = args.map(arg => arg.replace(/^['"](.*)['"]$/, '$1'));
+      if (parsedArgs.length === 0) throw new Error('Empty command');
+      const command = parsedArgs[0].toLowerCase();
+      
+      // block some dangerous redis commands if we want, but for now just pass to ioredis
+      const blocked = ['flushdb', 'flushall', 'config'];
+      if (blocked.includes(command)) {
+         throw new Error(`Execution blocked: ${command.toUpperCase()} is not allowed`);
+      }
+      
+      const redisResult = await conn.call(parsedArgs[0], ...parsedArgs.slice(1));
+      
+      if (Array.isArray(redisResult)) {
+        rows = redisResult.map((val, index) => ({ index, value: val }));
+      } else if (typeof redisResult === 'object' && redisResult !== null) {
+        rows = Object.entries(redisResult).map(([key, value]) => ({ key, value }));
+      } else {
+        rows = [{ result: redisResult }];
+      }
+      await conn.quit();
     } else {
       throw new Error('Unsupported database type');
     }
@@ -215,6 +261,8 @@ app.post('/api/structure', async (req, res) => {
         }));
       }
       await conn.end();
+    } else if (config.type === 'redis') {
+       structure['Redis Keys'] = [];
     } else {
       throw new Error('Unsupported database type');
     }

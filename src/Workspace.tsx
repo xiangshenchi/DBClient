@@ -166,7 +166,15 @@ export default function Workspace({
   }, [sql, isRunning, connection]);
 
   const handleTableClick = (tableName: string) => {
-    setSql(`SELECT * FROM ${tableName} LIMIT 100;`);
+    if (connection.type === 'redis') {
+      if (tableName === 'Redis Keys') {
+        setSql(`KEYS *`);
+      } else {
+        setSql(`GET ${tableName}`);
+      }
+    } else {
+      setSql(`SELECT * FROM ${tableName} LIMIT 100;`);
+    }
   };
 
   const handleDownloadCsv = () => {

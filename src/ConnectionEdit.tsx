@@ -64,13 +64,14 @@ export default function ConnectionEdit({
                 setFormData({ 
                   ...formData, 
                   type, 
-                  port: type === 'mysql' ? 3306 : 5432 
+                  port: type === 'mysql' ? 3306 : (type === 'postgres' ? 5432 : 6379)
                 });
               }}
               className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 transition-all text-sm appearance-none"
             >
               <option value="mysql">MySQL</option>
               <option value="postgres">PostgreSQL</option>
+              <option value="redis">Redis</option>
             </select>
           </div>
 
@@ -99,10 +100,12 @@ export default function ConnectionEdit({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Database Name</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+              {formData.type === 'redis' ? 'Database Index (Optional, default 0)' : 'Database Name'}
+            </label>
             <input 
-              required
-              type="text" 
+              required={formData.type !== 'redis'}
+              type={formData.type === 'redis' ? 'number' : 'text'}
               value={formData.database || ''} 
               onChange={e => setFormData({ ...formData, database: e.target.value })}
               className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 transition-all text-sm"
@@ -110,9 +113,11 @@ export default function ConnectionEdit({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Username</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+              {formData.type === 'redis' ? 'Username (Optional)' : 'Username'}
+            </label>
             <input 
-              required
+              required={formData.type !== 'redis'}
               type="text" 
               autoComplete="off"
               value={formData.username || ''} 

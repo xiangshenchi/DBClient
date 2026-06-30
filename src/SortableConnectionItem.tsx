@@ -58,7 +58,11 @@ export function SortableConnectionItem({
           {isDragging ? (
             <GripVertical className="w-6 h-6 text-blue-500 animate-in fade-in zoom-in duration-200" />
           ) : (
-            <Database className={`w-8 h-8 shrink-0 ${conn.type === 'mysql' ? 'text-orange-500 dark:text-orange-400' : 'text-blue-500 dark:text-blue-400'}`} />
+            <Database className={`w-8 h-8 shrink-0 ${
+              conn.type === 'mysql' ? 'text-orange-500 dark:text-orange-400' :
+              conn.type === 'redis' ? 'text-red-500 dark:text-red-400' :
+              'text-blue-500 dark:text-blue-400'
+            }`} />
           )}
         </div>
         
