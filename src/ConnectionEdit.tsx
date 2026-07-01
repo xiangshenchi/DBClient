@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { DBConnection, DBType } from './types';
 
 export default function ConnectionEdit({
@@ -11,6 +12,7 @@ export default function ConnectionEdit({
   onSave: (c: DBConnection) => void,
   onCancel: () => void
 }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<Partial<DBConnection>>(
     connection || {
       id: crypto.randomUUID(),
@@ -37,26 +39,26 @@ export default function ConnectionEdit({
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-xl font-medium tracking-tight">
-          {connection ? 'Edit Connection' : 'New Connection'}
+          {connection ? t('edit_connection') : t('add_new_connection')}
         </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Connection Name</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('connection_name')}</label>
             <input 
               required
               type="text" 
               value={formData.name || ''} 
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
-              placeholder="e.g. Production MySQL"
+              placeholder={t('eg_production_mysql')}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Database Type</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('database_type')}</label>
             <select
               value={formData.type}
               onChange={e => {
@@ -77,7 +79,7 @@ export default function ConnectionEdit({
 
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Host/IP</label>
+              <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('host')}</label>
               <input 
                 required
                 type="text" 
@@ -88,7 +90,7 @@ export default function ConnectionEdit({
               />
             </div>
             <div className="w-24">
-              <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Port</label>
+              <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('port')}</label>
               <input 
                 required
                 type="number" 
@@ -101,7 +103,7 @@ export default function ConnectionEdit({
 
           <div>
             <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
-              {formData.type === 'redis' ? 'Database Index (Optional, default 0)' : 'Database Name'}
+              {formData.type === 'redis' ? t('database_index') : t('database')}
             </label>
             <input 
               required={formData.type !== 'redis'}
@@ -114,7 +116,7 @@ export default function ConnectionEdit({
 
           <div>
             <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
-              {formData.type === 'redis' ? 'Username (Optional)' : 'Username'}
+              {formData.type === 'redis' ? t('username_optional') : t('username')}
             </label>
             <input 
               required={formData.type !== 'redis'}
@@ -127,7 +129,7 @@ export default function ConnectionEdit({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Password</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('password')}</label>
             <input 
               type="password" 
               autoComplete="new-password"
@@ -146,7 +148,7 @@ export default function ConnectionEdit({
               className="w-5 h-5 rounded border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500"
             />
             <label htmlFor="ssl" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Enable SSL / TLS
+              {t('enable_ssl')}
             </label>
           </div>
         </div>
@@ -157,7 +159,7 @@ export default function ConnectionEdit({
             className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-lg py-3.5 font-medium flex items-center justify-center gap-2 transition-colors active:bg-blue-700"
           >
             <Save className="w-5 h-5" />
-            Save Connection
+            {t('save_connection')}
           </button>
         </div>
       </form>

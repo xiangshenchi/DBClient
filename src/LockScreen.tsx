@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Database, Delete, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
+  const { t } = useTranslation();
   const [pin, setPin] = useState('');
   const [setupMode, setSetupMode] = useState(false);
   const [error, setError] = useState(false);
@@ -52,7 +54,7 @@ export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">DBClient</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-          {setupMode ? 'Set up a 4-digit PIN' : 'Enter your PIN to unlock'}
+          {setupMode ? t('setup_pin') : t('enter_pin')}
         </p>
       </div>
 
@@ -95,7 +97,7 @@ export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
           onClick={() => setShowConfirmReset(true)}
           className="mt-8 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
         >
-          Forgot PIN?
+          {t('forgot_pin')}
         </button>
       )}
 
@@ -104,23 +106,23 @@ export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center gap-4 text-amber-500 mb-4">
               <AlertTriangle className="w-8 h-8 shrink-0" />
-              <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">Reset App?</h2>
+              <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">{t('reset_app')}</h2>
             </div>
             <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
-              This will clear your PIN and permanently delete all your local connections. If you have a WebDAV backup, you can restore them after resetting.
+              {t('reset_app_desc')}
             </p>
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowConfirmReset(false)}
                 className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors font-medium text-sm"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button 
                 onClick={handleReset}
                 className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium text-sm"
               >
-                Reset App
+                {t('reset_app_btn')}
               </button>
             </div>
           </div>

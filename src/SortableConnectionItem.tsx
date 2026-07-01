@@ -2,6 +2,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Database, Server, Clock, Trash2, Edit2, Play, GripVertical, Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { DBConnection } from './types';
 
 export function SortableConnectionItem({
@@ -21,10 +22,12 @@ export function SortableConnectionItem({
   onSelect: (conn: DBConnection) => void;
   onEdit: (conn: DBConnection) => void;
   onDelete: (id: string) => void;
-  onPing: (e: React.MouseEvent, conn: DBConnection) => void;
+  onPing: (e: React.MouseEvent, conn: DBConnection) => Promise<void> | void;
   onToggleFavorite: (e: React.MouseEvent, id: string) => void;
   setDeleteConfirmId: React.Dispatch<React.SetStateAction<string | null>>;
+  key?: React.Key;
 }) {
+  const { t } = useTranslation();
   const {
     attributes,
     listeners,
@@ -76,15 +79,20 @@ export function SortableConnectionItem({
 
         <div className="flex flex-col items-end gap-2 shrink-0 pointer-events-none">
           {ping?.resolving ? (
-            <span className="text-xs text-slate-500 dark:text-slate-400">Pinging...</span>
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse" />
+              <span>{t('pinging')}</span>
+            </div>
           ) : ping?.success !== undefined ? (
-            <div className={`flex items-center gap-1 text-xs ${ping.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
-              <div className={`w-2 h-2 rounded-full ${ping.success ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-red-500 dark:bg-red-400'}`} />
-              {ping.success ? `${ping.ms}ms` : 'Error'}
+            <div className={`flex items-center gap-1.5 text-xs ${ping.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
+              <div className={`w-2.5 h-2.5 rounded-full ${ping.success ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-red-500 dark:bg-red-400'}`} />
+              <span>{ping.success ? t('online') : t('offline')}</span>
+              {ping.success && <span className="text-[10px] opacity-70 ml-1">({ping.ms}ms)</span>}
             </div>
           ) : (
-            <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
-              {conn.lastConnected ? <><Clock className="w-3 h-3 shrink-0" /> {new Date(conn.lastConnected).toLocaleDateString()}</> : 'Never'}
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+              <span>{t('unknown')}</span>
             </div>
           )}
         </div>
@@ -95,19 +103,21 @@ export function SortableConnectionItem({
           <button 
             onClick={(e) => onToggleFavorite(e, conn.id)}
             className={`p-2 transition-colors rounded-lg ${conn.isFavorite ? 'text-amber-500 hover:bg-slate-200 dark:hover:bg-slate-800' : 'text-slate-500 dark:text-slate-400 hover:text-amber-500 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
-            title={conn.isFavorite ? "Unpin database" : "Pin database to top"}
+            title={conn.isFavorite ? t('unfavorite') : t('favorite')}
           >
             <Star className="w-4 h-4" fill={conn.isFavorite ? "currentColor" : "none"} />
           </button>
           <button 
             onClick={(e) => onPing(e, conn)}
             className="p-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800"
+            title={t('test_connection')}
           >
             <Play className="w-4 h-4" />
           </button>
           <button 
             onClick={(e) => { e.stopPropagation(); onEdit(conn); }}
             className="p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800"
+            title={t('edit')}
           >
             <Edit2 className="w-4 h-4" />
           </button>
@@ -126,9 +136,10 @@ export function SortableConnectionItem({
             }
           }}
           className={`px-3 py-2 text-sm font-medium transition-colors rounded-lg flex items-center gap-2 ${deleteConfirmId === conn.id ? 'bg-red-500 hover:bg-red-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+          title={t('delete')}
         >
           <Trash2 className="w-4 h-4 shrink-0" />
-          {deleteConfirmId === conn.id && <span>Confirm</span>}
+          {deleteConfirmId === conn.id && <span>{t('confirm')}</span>}
         </button>
       </div>
     </div>

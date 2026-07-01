@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Play, LayoutPanelLeft, Table2, Key, AlertTriangle, Download, X, Loader2, History } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { DBConnection, TableStructure, QueryResult } from './types';
 import { getDatabaseStructure, executeQuery } from './api';
 
-const ResizableHeader = ({ children }: { children: React.ReactNode }) => {
+const ResizableHeader = ({ children }: { children: React.ReactNode, key?: React.Key }) => {
   const [width, setWidth] = useState(80);
   const [isResizing, setIsResizing] = useState(false);
   const startXRef = useRef(0);
@@ -65,6 +66,7 @@ export default function Workspace({
   connection: DBConnection,
   onBack: () => void
 }) {
+  const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [structure, setStructure] = useState<TableStructure>({});
   const [isStructureLoading, setIsStructureLoading] = useState(true);
@@ -238,19 +240,19 @@ export default function Workspace({
                   onClick={() => setSidebarTab('tables')}
                   className={`transition-colors ${sidebarTab === 'tables' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
                 >
-                  Tables
+                  {t('tables_tab')}
                 </button>
                 <button 
                   onClick={() => setSidebarTab('history')}
                   className={`flex items-center gap-1 transition-colors ${sidebarTab === 'history' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
                 >
-                  <History className="w-3 h-3" /> History
+                  <History className="w-3 h-3" /> {t('history')}
                 </button>
               </div>
               {sidebarTab === 'tables' && (
                 <input 
                   type="text" 
-                  placeholder="Search tables..." 
+                  placeholder={t('search_tables')} 
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="w-full bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 outline-none rounded-md px-2 py-1 text-xs text-slate-700 dark:text-slate-300 placeholder-slate-400 transition-all"
@@ -262,8 +264,8 @@ export default function Workspace({
                 <div className="flex flex-col gap-2">
                   {queryHistory.length === 0 ? (
                     <div className="p-4 text-center text-slate-500 text-xs text-balance">
-                      <span className="block mb-1">No history yet</span>
-                      <span className="text-[10px]">Queries run in this session will appear here</span>
+                      <span className="block mb-1">{t('no_history_yet')}</span>
+                      <span className="text-[10px]">{t('queries_run_here')}</span>
                     </div>
                   ) : (
                     queryHistory.slice().reverse().map((q, i) => (
@@ -281,16 +283,16 @@ export default function Workspace({
               ) : isStructureLoading ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="text-xs">Loading...</span>
+                  <span className="text-xs">{t('loading')}</span>
                 </div>
               ) : Object.keys(structure).length === 0 ? (
                 <div className="p-4 text-center text-slate-500 text-xs text-balance">
-                  <span className="block mb-1">No tables found</span>
-                  <span className="text-[10px]">or failed to connect</span>
+                  <span className="block mb-1">{t('no_tables_found')}</span>
+                  <span className="text-[10px]">{t('failed_to_connect')}</span>
                 </div>
               ) : Object.entries(structure).filter(([tableName]) => tableName.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
                 <div className="p-4 text-center text-slate-500 text-xs text-balance">
-                  <span className="block mb-1">No matching tables</span>
+                  <span className="block mb-1">{t('no_matching_tables')}</span>
                 </div>
               ) : (
                 Object.entries(structure)
@@ -326,12 +328,12 @@ export default function Workspace({
           value={sql}
           onChange={e => setSql(e.target.value)}
           className="flex-1 w-full bg-transparent resize-none outline-none font-mono text-sm p-2 text-blue-600 dark:text-blue-300 placeholder-slate-400 dark:placeholder-slate-600"
-          placeholder="ENTER SQL HERE... (SELECT, SHOW, DESCRIBE)"
+          placeholder={t('enter_sql_here')}
           spellCheck={false}
         />
         <div className="flex justify-between items-center px-2 pb-2">
            <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" /> Read-only (LIMIT auto-applied)
+            <AlertTriangle className="w-3 h-3" /> {t('read_only_limit')}
           </span>
           <div className="flex items-center gap-3">
             <span className="text-[10px] text-slate-400 hidden sm:inline-flex items-center gap-1.5 opacity-70">
@@ -349,7 +351,7 @@ export default function Workspace({
             ) : (
               <Play className="w-4 h-4 fill-current" />
             )}
-            Run
+            {t('execute_query')}
           </button>
           </div>
         </div>
@@ -361,10 +363,10 @@ export default function Workspace({
           result.success ? (
             <>
               <div className="flex justify-between items-center px-4 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/30 text-xs text-slate-500 dark:text-slate-400">
-                <span>{result.count} rows in {result.ms}ms</span>
+                <span>{t('rows_in_ms', { count: result.count, ms: result.ms })}</span>
                 {result.rows && result.rows.length > 0 && (
                   <button onClick={handleDownloadCsv} className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors">
-                    <Download className="w-3 h-3" /> CSV
+                    <Download className="w-3 h-3" /> {t('csv')}
                   </button>
                 )}
               </div>
@@ -391,7 +393,7 @@ export default function Workspace({
                     </tbody>
                   </table>
                 ) : (
-                  <div className="p-6 text-center text-slate-500 font-mono text-sm">Query returned 0 rows.</div>
+                  <div className="p-6 text-center text-slate-500 font-mono text-sm">{t('query_returned_0_rows')}</div>
                 )}
               </div>
             </>
@@ -403,7 +405,7 @@ export default function Workspace({
         ) : (
           <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-600 text-sm flex-col gap-2">
             <Table2 className="w-8 h-8 opacity-20" />
-            No results
+            {t('no_results')}
           </div>
         )}
       </div>

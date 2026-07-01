@@ -1,71 +1,67 @@
-# 网页版数据库管理工具 (Web DB Manager)
+# DBClient (网页版数据库管理工具)
 
+A lightweight, modern web-based database management client. Support visual management of your database connections, local secure lock, and cloud backup features.
 这是一款轻量级、现代化的网页版数据库管理客户端。支持直观地管理您的数据库连接，并提供本地安全锁与云端备份功能。
 
-## ✨ 主要功能
+## ✨ Features (主要功能)
 
-- 🔒 **隐私保护**：初次使用需设置 4 位 PIN 码，保护本地数据库连接配置。
-- 💾 **本地存储 & 云端备份**：连接信息默认安全地保存在浏览器本地（LocalStorage），确保敏感数据不随便上云。同时支持通过 **WebDAV** 进行云端配置备份与恢复，防止数据意外丢失。
-- 🎨 **快速主题切换**：支持浅色 (Light) 和深色 (Dark) 模式的无缝切换。
-- 📌 **快捷管理**：
-  - 支持拖拽排序，自由组织应用内不同连接的顺序。
-  - 支持“星标”设置，一键将高频常用的数据库置顶系统。
-  - 一键快速测试数据库连通性（Ping）。
-- 🗄️ **多数据库支持**：支持配置和管理 MySQL, PostgreSQL 和 Redis 等多种数据库连接记录。
-- ⚡ **在线查询**：支持执行安全的 SQL 查询语句（MySQL/PostgreSQL）以及常用的 Redis 命令。
-- 📊 **可调整布局**：查询结果表头支持拖动改变显示列宽。
+- 🔒 **Privacy First (隐私保护)**: Initial use requires setting a 4-digit PIN to protect local database connection configurations. / 初次使用需设置 4 位 PIN 码，保护本地数据库连接配置。
+- 💾 **Local Storage & Cloud Backup (本地存储 & 云端备份)**: Connections are saved securely in browser LocalStorage by default. Supports **WebDAV** for cloud backup and restore. / 连接信息默认安全地保存在浏览器本地，支持通过 WebDAV 进行云端备份与恢复。
+- 🌍 **Internationalization (多语言支持)**: Built-in support for English and Simplified Chinese (i18n). / 内置中英文双语支持。
+- 📱 **Mobile Responsive (响应式设计)**: Fully optimized for mobile devices with a clean and accessible user interface. / 完美适配移动端设备，提供干净直观的用户界面。
+- 🎨 **Theme Switching (主题切换)**: Seamless switching between Light and Dark modes. / 支持浅色 (Light) 和深色 (Dark) 模式的无缝切换。
+- 📌 **Quick Management (快捷管理)**:
+  - Drag and drop sorting. / 拖拽排序，自由组织连接。
+  - "Favorites" support to pin frequently used databases. / 支持“星标”设置置顶常用连接。
+  - One-click ping to test database connectivity. / 一键快速测试数据库连通性（Ping）。
+- 🗄️ **Multi-Database Support (多数据库支持)**: Manage connections for MySQL, PostgreSQL, and Redis. / 支持管理 MySQL, PostgreSQL 和 Redis。
+- ⚡ **Online Queries (在线查询)**: Execute safe SQL queries (MySQL/PostgreSQL) and common Redis commands. / 支持执行 SQL 查询语句及 Redis 命令。
 
-## 🚀 部署与运行
+## 🚀 Deployment (部署与运行)
 
-本项目是一个全栈应用，前端采用 React (Vite) 构建，后端采用 Express 提供 WebDAV 请求代理和安全连通性测试服务。
+This is a full-stack application built with React (Vite) on the frontend, and Express (Node.js) on the backend for WebDAV proxying and database connectivity.
+本项目是一个全栈应用，前端采用 React (Vite) 构建，后端采用 Express 提供 WebDAV 请求代理和连通性测试服务。
 
-### 环境要求
+### Prerequisites (环境要求)
 - Node.js 18+
-- npm 或 pnpm
+- npm or pnpm
 
-### 本地开发
+### Local Development (本地开发)
 
-1. 安装项目依赖：
+1. Install dependencies / 安装项目依赖：
    ```bash
    npm install
    ```
-2. 启动开发服务器（前后端一体）：
+2. Start the development server / 启动开发服务器：
    ```bash
    npm run dev
    ```
-   默认将在 `http://localhost:3000` 启动服务。
+   *Runs by default on `http://localhost:3000`.*
 
-### 生产环境构建部署
+### Production Build & Deployment (生产环境构建部署)
 
-> **⚠️ 重要提醒:** 
-> 由于本项目包含处理 WebDAV 通信和数据库底层探测的 Node.js 后端服务，**不能**仅作为静态网页（如 Vercel 或 GitHub Pages 的纯静态托管模式）部署。必须使用支持 Node.js 运行时的环境（如 VPS 云服务器、Render、Railway 或 Railway 这类容器平台）进行部署。
+> **⚠️ Important / 重要提醒:** 
+> Due to the Node.js backend required for WebDAV proxying and database probing, this app **CANNOT** be deployed as a pure static site (e.g., Vercel Static, GitHub Pages). It must be deployed to an environment that supports Node.js runtimes (e.g., Cloud Run, VPS, Render, Railway).
+> 由于包含处理 WebDAV 和数据库底层探测的 Node.js 后端服务，本项目**不能**仅作为静态网页部署。必须使用支持 Node.js 运行时的环境。
 
-1. 执行生产环境构建：
+1. Build for production / 执行生产环境构建：
    ```bash
    npm run build
    ```
-   该命令会将前端代码打包为静态页面，并将后端 API 一并打包。
-
-2. 启动正式服务：
+2. Start the production server / 启动正式服务：
    ```bash
    npm start
    ```
 
-## ❓ 常见问题排查
+## ❓ FAQ (常见问题)
 
-- **为什么我在 Vercel 静态部署后，点击 Restore (恢复备份) 报错？**
-  **解答**：因为 Vercel 静态托管无法运行项目内自带的 Express 守护进程（`/server.ts`）。这就导致连接 WebDAV、Ping 数据库等依赖后端的请求失效，并可能返回诸如 "Unexpected token 'T', The page..."（也就是 404 引导页面代码）等报错信息。请把它部署到能够完整运行 Node 服务端的地方。
+- **Forgot your PIN? (忘记 PIN 码？)**
+  You can reset the app from the lock screen. **Note:** Resetting will permanently delete all local connection configurations. You can restore them if you have a WebDAV backup. / 可以在解锁界面点击重置。注意：重置会清除所有本地连接记录。
 
-- **浏览器 LocalStorage 会过期吗？数据会不见吗？**
-  **解答**：LocalStorage 机制本身没有时间限制，它是长期有效的。除非你主动去清理浏览器缓存数据、重装浏览器或更换电脑。不过为了防止意外的设备重置或浏览器失效，建议配置并定期使用 WebDAV 进行云端备份。
+## 🛠️ Tech Stack (技术栈)
 
-- **如果我不小心忘记当初设置的锁屏 PIN 密码怎么办？**
-  **解答**：在输入 PIN 码界面的侧方点击 `Forgot PIN?` 可以重置应用。**注意：** 出于安全策略，重置操作会强制清空并在本地永久删除你之前建立的所有连接配置。如果有做过 WebDAV 备份，可以在重置后进入应用重新连接 WebDAV 恢复数据。
+- **Frontend**: React, Vite, Tailwind CSS, Lucide React, dnd-kit, i18next
+- **Backend**: Express.js, Node TypeScript
 
-## 🛠️ 技术栈
-
-- **前端**: React, Vite, Tailwind CSS, Lucide React (图标集), dnd-kit (手势与拖拽排序)
-- **后端**: Express.js, Node TypeScript 
-
-## 📄 开源协议
+## 📄 License (开源协议)
 MIT License

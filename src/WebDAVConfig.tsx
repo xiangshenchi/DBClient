@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CloudUpload, CloudDownload, Server, User, Lock, Loader2, CheckCircle2, AlertTriangle, FileJson } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { DBConnection } from './types';
 
 export default function WebDAVConfig({ 
@@ -11,6 +12,7 @@ export default function WebDAVConfig({
   onSaveConnections: (connections: DBConnection[]) => void,
   onBack: () => void 
 }) {
+  const { t } = useTranslation();
   const [url, setUrl] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -39,7 +41,7 @@ export default function WebDAVConfig({
 
   const handleBackup = async () => {
     if (!url || !username || !password) {
-      setStatus({ type: 'error', message: 'Please fill in all WebDAV details' });
+      setStatus({ type: 'error', message: t('webdav_fill_all') });
       return;
     }
     setIsProcessing(true);
@@ -53,13 +55,13 @@ export default function WebDAVConfig({
       });
       const result = await res.json();
       if (result.success) {
-        setStatus({ type: 'success', message: 'Backup to WebDAV successful!' });
+        setStatus({ type: 'success', message: t('webdav_backup_success') });
         saveConfigLocal();
       } else {
-        setStatus({ type: 'error', message: result.error || 'Backup failed' });
+        setStatus({ type: 'error', message: result.error || t('webdav_backup_failed') });
       }
     } catch (e: any) {
-      setStatus({ type: 'error', message: e.message || 'Backup failed' });
+      setStatus({ type: 'error', message: e.message || t('webdav_backup_failed') });
     } finally {
       setIsProcessing(false);
     }
@@ -67,7 +69,7 @@ export default function WebDAVConfig({
 
   const handleRestore = async () => {
     if (!url || !username || !password) {
-      setStatus({ type: 'error', message: 'Please fill in all WebDAV details' });
+      setStatus({ type: 'error', message: t('webdav_fill_all') });
       return;
     }
     
@@ -89,13 +91,13 @@ export default function WebDAVConfig({
       const result = await res.json();
       if (result.success && result.data && Array.isArray(result.data)) {
         onSaveConnections(result.data);
-        setStatus({ type: 'success', message: 'Successfully restored connections!' });
+        setStatus({ type: 'success', message: t('webdav_restore_success') });
         saveConfigLocal();
       } else {
-        setStatus({ type: 'error', message: result.error || 'Restore failed' });
+        setStatus({ type: 'error', message: result.error || t('webdav_restore_failed') });
       }
     } catch (e: any) {
-      setStatus({ type: 'error', message: e.message || 'Restore failed' });
+      setStatus({ type: 'error', message: e.message || t('webdav_restore_failed') });
     } finally {
       setIsProcessing(false);
     }
@@ -107,12 +109,12 @@ export default function WebDAVConfig({
         <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-medium tracking-tight">WebDAV Backup</h1>
+        <h1 className="text-xl font-medium tracking-tight">{t('webdav_sync')}</h1>
       </div>
 
       <div className="max-w-md mx-auto w-full px-6 py-8 space-y-6">
         <div className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-          Synchronize your database connections across devices using your own WebDAV server (e.g. Nextcloud, ownCloud, or Alist).
+          {t('webdav_desc')}
         </div>
 
         {status.type && (
@@ -124,7 +126,7 @@ export default function WebDAVConfig({
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Server URL</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('server_url')}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Server className="w-4 h-4" />
@@ -140,7 +142,7 @@ export default function WebDAVConfig({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Username</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('username')}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <User className="w-4 h-4" />
@@ -150,13 +152,13 @@ export default function WebDAVConfig({
                 value={username} 
                 onChange={e => setUsername(e.target.value)}
                 className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg pl-10 pr-4 py-2.5 outline-none focus:border-blue-500 transition-all text-sm"
-                placeholder="username"
+                placeholder={t('username')}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Password / App Password</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('password_app_password')}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Lock className="w-4 h-4" />
@@ -172,7 +174,7 @@ export default function WebDAVConfig({
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Backup File Path</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t('backup_file_path')}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <FileJson className="w-4 h-4" />
@@ -195,7 +197,7 @@ export default function WebDAVConfig({
             className={`w-full py-3 px-4 border text-slate-700 dark:text-slate-200 rounded-lg font-medium text-sm transition-all focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 ${confirmRestore ? 'bg-amber-100 dark:bg-amber-900/50 border-amber-300 dark:border-amber-700 hover:border-amber-400 text-amber-700 dark:text-amber-400' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500'}`}
           >
             {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CloudDownload className="w-4 h-4" />}
-            {confirmRestore ? 'Confirm Restore' : 'Restore'}
+            {confirmRestore ? t('confirm_restore') : t('restore')}
           </button>
           
           <button
@@ -204,7 +206,7 @@ export default function WebDAVConfig({
             className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium text-sm shadow-lg shadow-blue-500/20 transition-all focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
             {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CloudUpload className="w-4 h-4" />}
-            Backup
+            {t('backup')}
           </button>
         </div>
       </div>
