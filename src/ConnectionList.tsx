@@ -208,7 +208,7 @@ export default function ConnectionList({
       </div>
 
       <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 backdrop-blur-sm sticky top-[73px] z-10">
-        <div className="flex gap-2 max-w-4xl mx-auto w-full">
+        <div className="flex gap-2 w-full">
           <div className="relative flex-1">
             <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -233,7 +233,7 @@ export default function ConnectionList({
         </div>
       </div>
 
-      <div className="p-4 max-w-4xl mx-auto w-full">
+      <div className="p-4 w-full">
         {filteredConnections.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-slate-400 dark:text-slate-500">
             <Database className="w-12 h-12 mb-4 opacity-20" />

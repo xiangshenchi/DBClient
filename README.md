@@ -1,67 +1,194 @@
-# DBClient (网页版数据库管理工具)
+# DBClient - 网页版数据库管理工具
 
-A lightweight, modern web-based database management client. Support visual management of your database connections, local secure lock, and cloud backup features.
-这是一款轻量级、现代化的网页版数据库管理客户端。支持直观地管理您的数据库连接，并提供本地安全锁与云端备份功能。
+> 一款轻量级、现代化的全栈网页数据库管理客户端。
+> A lightweight, modern full-stack web-based database management client.
 
-## ✨ Features (主要功能)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Tech Stack](https://img.shields.io/badge/React-19-blue?logo=react)
+![Tech Stack](https://img.shields.io/badge/Vite-6-purple?logo=vite)
+![Tech Stack](https://img.shields.io/badge/Express-4-gray?logo=express)
 
-- 🔒 **Privacy First (隐私保护)**: Initial use requires setting a 4-digit PIN to protect local database connection configurations. / 初次使用需设置 4 位 PIN 码，保护本地数据库连接配置。
-- 💾 **Local Storage & Cloud Backup (本地存储 & 云端备份)**: Connections are saved securely in browser LocalStorage by default. Supports **WebDAV** for cloud backup and restore. / 连接信息默认安全地保存在浏览器本地，支持通过 WebDAV 进行云端备份与恢复。
-- 🌍 **Internationalization (多语言支持)**: Built-in support for English and Simplified Chinese (i18n). / 内置中英文双语支持。
-- 📱 **Mobile Responsive (响应式设计)**: Fully optimized for mobile devices with a clean and accessible user interface. / 完美适配移动端设备，提供干净直观的用户界面。
-- 🎨 **Theme Switching (主题切换)**: Seamless switching between Light and Dark modes. / 支持浅色 (Light) 和深色 (Dark) 模式的无缝切换。
-- 📌 **Quick Management (快捷管理)**:
-  - Drag and drop sorting. / 拖拽排序，自由组织连接。
-  - "Favorites" support to pin frequently used databases. / 支持“星标”设置置顶常用连接。
-  - One-click ping to test database connectivity. / 一键快速测试数据库连通性（Ping）。
-- 🗄️ **Multi-Database Support (多数据库支持)**: Manage connections for MySQL, PostgreSQL, and Redis. / 支持管理 MySQL, PostgreSQL 和 Redis。
-- ⚡ **Online Queries (在线查询)**: Execute safe SQL queries (MySQL/PostgreSQL) and common Redis commands. / 支持执行 SQL 查询语句及 Redis 命令。
+---
 
-## 🚀 Deployment (部署与运行)
+## 📖 简介 / Introduction
 
-This is a full-stack application built with React (Vite) on the frontend, and Express (Node.js) on the backend for WebDAV proxying and database connectivity.
-本项目是一个全栈应用，前端采用 React (Vite) 构建，后端采用 Express 提供 WebDAV 请求代理和连通性测试服务。
+**DBClient** 是一个运行在浏览器中的数据库管理工具，无需安装桌面应用即可管理 MySQL、PostgreSQL 和 Redis。支持数据库连接管理、SQL 查询、表结构浏览与 WebDAV 云端备份。
 
-### Prerequisites (环境要求)
-- Node.js 18+
-- npm or pnpm
+**DBClient** is a browser-based database management tool that lets you manage MySQL, PostgreSQL, and Redis without installing any desktop application. It supports connection management, SQL queries, table structure browsing, and WebDAV cloud backup.
 
-### Local Development (本地开发)
+---
 
-1. Install dependencies / 安装项目依赖：
-   ```bash
-   npm install
-   ```
-2. Start the development server / 启动开发服务器：
-   ```bash
-   npm run dev
-   ```
-   *Runs by default on `http://localhost:3000`.*
+## ✨ 功能特性 / Features
 
-### Production Build & Deployment (生产环境构建部署)
+### 🔒 隐私保护 / Privacy First
 
-> **⚠️ Important / 重要提醒:** 
-> Due to the Node.js backend required for WebDAV proxying and database probing, this app **CANNOT** be deployed as a pure static site (e.g., Vercel Static, GitHub Pages). It must be deployed to an environment that supports Node.js runtimes (e.g., Cloud Run, VPS, Render, Railway).
-> 由于包含处理 WebDAV 和数据库底层探测的 Node.js 后端服务，本项目**不能**仅作为静态网页部署。必须使用支持 Node.js 运行时的环境。
+- 首次使用需设置 **4 位 PIN 码**，保护本地数据库连接配置
+- 连接信息以明文存储在浏览器 `localStorage` 中，受 PIN 码访问控制
+- A 4-digit PIN protects your locally stored database configurations from unauthorized access.
 
-1. Build for production / 执行生产环境构建：
-   ```bash
-   npm run build
-   ```
-2. Start the production server / 启动正式服务：
-   ```bash
-   npm start
-   ```
+### 🗄️ 多数据库支持 / Multi-Database Support
 
-## ❓ FAQ (常见问题)
+| 类型 / Type    | 功能 / Features                                              |
+| -------------- | ------------------------------------------------------------ |
+| **MySQL**      | 连接测试 / Ping、SQL 查询 / Query、表结构浏览 / Table Structure |
+| **PostgreSQL** | 连接测试 / Ping、SQL 查询 / Query、表结构浏览 / Table Structure |
+| **Redis**      | 连接测试 / Ping、命令执行 / Command Execution、KEY 查看      |
 
-- **Forgot your PIN? (忘记 PIN 码？)**
-  You can reset the app from the lock screen. **Note:** Resetting will permanently delete all local connection configurations. You can restore them if you have a WebDAV backup. / 可以在解锁界面点击重置。注意：重置会清除所有本地连接记录。
+### 📌 连接管理 / Connection Management
 
-## 🛠️ Tech Stack (技术栈)
+- **搜索过滤** — 按名称搜索连接，按类型（全部/MySQL/PostgreSQL/Redis）过滤
+- **收藏置顶** — 星标收藏常用数据库连接，自动排序置顶
+- **拖拽排序** — 通过拖拽自由组织连接顺序（基于 `@dnd-kit`）
+- **连通性检测** — 一键 Ping 测试数据库可达性，显示响应耗时
+- **快捷操作** — Ctrl+N 新建连接，Ctrl+F 搜索连接
+- Search, favorite, drag-and-drop reorder, and one-click ping for all your connections.
 
-- **Frontend**: React, Vite, Tailwind CSS, Lucide React, dnd-kit, i18next
-- **Backend**: Express.js, Node TypeScript
+### 📝 在线查询 / Online Query
 
-## 📄 License (开源协议)
-MIT License
+- **SQL 查询** — 支持 MySQL / PostgreSQL 的 SELECT、SHOW、DESCRIBE、EXPLAIN 语句
+- **安全限制** — 仅允许只读查询，自动追加 LIMIT 1000 防止误操作
+- **Redis 命令** — 支持执行常用 Redis 命令（FLUSHDB/FLUSHALL/CONFIG 被拦截）
+- **查询历史** — 自动记录当前连接的查询历史（最多 200 条），点击即可回填
+- **CSV 导出** — 查询结果一键导出为 UTF-8 CSV 文件
+- **快捷键** — Ctrl+Enter 快速执行查询
+- Execute safe read-only SQL queries and Redis commands with auto-applied LIMIT, history tracking, and CSV export.
+
+### 🏗️ 表结构浏览 / Table Structure
+
+- 自动获取数据库表结构（表名 → 字段名、类型、是否可空、是否主键）
+- 点击表名快速生成 `SELECT * FROM table LIMIT 100` 查询
+- 点击字段名将其追加到当前 SQL 编辑器中
+- 树形侧边栏 + 搜索过滤，快速定位表
+- Automatically fetch and browse database schemas with an interactive sidebar tree.
+
+### ☁️ WebDAV 云端备份 / WebDAV Cloud Backup
+
+- 支持通过 **WebDAV 协议** 备份/恢复连接配置
+- 一键备份所有连接到 WebDAV 服务器
+- 从 WebDAV 恢复连接配置，支持冲突确认
+- 配置信息保存在浏览器本地，无需重复输入
+- Backup and restore all your connection configurations via any WebDAV-compatible server.
+
+### 🎨 界面体验 / UI/UX
+
+- **🌓 明暗主题** — Light / Dark 模式无缝切换，状态持久化
+- **🌐 中英文双语** — 内置英文和简体中文，浏览器自动检测 + 手动切换
+- **📱 响应式设计** — 完美适配桌面与移动端设备
+- **可拖拽分栏** — 工作区侧边栏支持拖拽调整宽度
+- **可调整列宽** — 查询结果表头支持鼠标拖拽调整列宽
+- Light/Dark theme, bilingual UI (EN/ZH), responsive design, and resizable layout.
+
+---
+
+## 🚀 快速开始 / Quick Start
+
+### 环境要求 / Prerequisites
+
+- **Node.js** 18+
+- **npm** 或 **pnpm** / or pnpm
+
+### 本地开发 / Local Development
+
+```bash
+# 1. 安装依赖 / Install dependencies
+npm install
+
+# 2. 启动开发服务器 / Start dev server
+npm run dev
+```
+
+默认运行在 `http://localhost:3000`
+
+### 构建部署 / Production Build
+
+> **⚠️ 重要 / Important:** 
+> 由于后端提供 WebDAV 代理和数据库直连服务，**不能** 作为纯静态站点（如 Vercel Static、GitHub Pages）部署。必须使用支持 Node.js 运行时的环境。
+> This app requires a Node.js backend for WebDAV proxying and database connectivity — it **CANNOT** be deployed as a static site. Use Node.js-compatible platforms (Cloud Run, VPS, Render, Railway, etc.).
+
+```bash
+# 1. 构建 / Build
+npm run build
+
+# 2. 启动生产服务 / Start production server
+npm start
+```
+
+### 环境变量 / Environment Variables
+
+| 变量 / Variable  | 作用 / Purpose                                               |
+| ---------------- | ------------------------------------------------------------ |
+| `GEMINI_API_KEY` | Gemini AI API 密钥 / Gemini AI API key (for AI Studio integration) |
+| `APP_URL`        | 部署后的服务 URL / Deployed app URL (for callbacks)          |
+
+---
+
+## ❓ 常见问题 / FAQ
+
+<details>
+<summary><strong>忘记 PIN 码怎么办？/ Forgot your PIN?</strong></summary>
+
+
+在解锁界面点击「忘记 PIN 码？」→「重置应用」。**注意：** 重置会清除 PIN 码并**永久删除所有本地连接配置**。如果有 WebDAV 备份，重置后可以恢复。
+
+Click "Forgot PIN?" → "Reset App" on the lock screen. **Note:** This permanently deletes all local connections. Restore from WebDAV backup afterward if available.
+</details>
+
+<details>
+<summary><strong>连接信息存储在哪里？/ Where are connections stored?</strong></summary>
+
+
+连接配置以 JSON 格式保存在浏览器 `localStorage` 中（键名：`dbclient_connections`），受 PIN 码访问保护。建议通过 WebDAV 定期备份。
+
+Connections are stored in browser localStorage (key: `dbclient_connections`), protected by your PIN. Regular WebDAV backup is recommended.
+</details>
+
+<details>
+<summary><strong>支持哪些查询操作？/ What queries are supported?</strong></summary>
+
+
+MySQL/PostgreSQL 仅允许 `SELECT`、`SHOW`、`DESCRIBE`、`EXPLAIN` 等只读查询，系统自动追加 `LIMIT 1000`。Redis 支持大部分命令，但 `FLUSHDB`、`FLUSHALL`、`CONFIG` 被安全拦截。
+
+Only read-only queries (SELECT, SHOW, DESCRIBE, EXPLAIN) are allowed for SQL databases, with auto-applied LIMIT 1000. Redis blocks FLUSHDB, FLUSHALL, and CONFIG for safety.
+</details>
+
+---
+
+## 🛠️ 技术栈 / Tech Stack
+
+### 前端 / Frontend
+
+| 技术                                                | 用途            |
+| --------------------------------------------------- | --------------- |
+| [React 19](https://react.dev/)                      | UI 框架         |
+| [Vite 6](https://vite.dev/)                         | 构建工具        |
+| [Tailwind CSS 4](https://tailwindcss.com/)          | 样式框架        |
+| [@dnd-kit](https://dndkit.com/)                     | 拖拽排序        |
+| [i18next](https://www.i18next.com/) + react-i18next | 国际化（中/英） |
+| [Lucide React](https://lucide.dev/)                 | 图标库          |
+| [motion](https://motion.dev/)                       | 动画库          |
+
+### 后端 / Backend
+
+| 技术                                                         | 用途                  |
+| ------------------------------------------------------------ | --------------------- |
+| [Express](https://expressjs.com/)                            | HTTP 服务框架         |
+| [mysql2](https://github.com/sidorares/node-mysql2)           | MySQL 连接            |
+| [pg](https://node-postgres.com/)                             | PostgreSQL 连接       |
+| [ioredis](https://github.com/redis/ioredis)                  | Redis 连接            |
+| [webdav](https://github.com/perry-mitchell/webdav-client)    | WebDAV 客户端         |
+| [tsx](https://tsx.is/) + [esbuild](https://esbuild.github.io/) | TypeScript 执行与打包 |
+
+---
+
+## 📄 开源协议 / License
+
+[MIT](LICENSE)
+
+---
+
+<p align="center">
+  <a href="https://github.com/xiangshenchi/DBClient">
+    <img src="https://img.shields.io/badge/GitHub-xiangshenchi%2FDBClient-181717?logo=github" alt="GitHub" />
+  </a>
+</p>
+
